@@ -1,0 +1,1 @@
+This would in the future if needed, be its own project housing all abstractions like in an Clean Architecure DDD project, where Core project houses the abstractions, and Core/infrastructure houses the implementations.
