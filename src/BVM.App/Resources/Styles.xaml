@@ -1,0 +1,34 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--  Style for header text  -->
+    <Style x:Key="LabelHeader" TargetType="Label">
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="Margin" Value="10" />
+    </Style>
+
+    <Style x:Key="LabelInput" TargetType="Label">
+        <Setter Property="FontFamily" Value="Segoe UI" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="FontWeight" Value="Bold" />
+        <Setter Property="Foreground" Value="Black" />
+        <Setter Property="Margin" Value="10" />
+    </Style>
+
+    <!--  Implicit style for all TextBlocks  -->
+    <Style TargetType="TextBlock">
+
+    </Style>
+
+    <Style TargetType="Button">
+        <Setter Property="Background" Value="LightBlue" />
+        <Setter Property="Foreground" Value="DarkBlue" />
+        <Setter Property="Margin" Value="5" />
+    </Style>
+
+    <Style TargetType="{x:Type Control}">
+        <Setter Property="FontFamily" Value="Segoe UI" />
+    </Style>
+</ResourceDictionary>
