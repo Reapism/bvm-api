@@ -89,7 +89,7 @@ namespace BVM.App.ViewModels
                     _cts!.Token);
 
                 foreach (var f in list)
-                    Files.Add(f);
+                    Files.Add  (f);
             }
             finally
             {
@@ -99,14 +99,20 @@ namespace BVM.App.ViewModels
 
         private void DoPreview()
         {
+            SetBusy(true);
             foreach (var f in Files)
+            {
                 f.DestinationPath = Path.Combine(
                     DestinationDirectory,
                     f.Year.ToString(),
                     f.FileName);
+                f.DestinationRelativePath = FileOrganizerService.GetRelativePathFromDirectory(f.SourcePath, f.DestinationPath);
+            }
 
             // if you want the grid to refresh
             OnPropertyChanged(nameof(Files));
+            UpdateCommands();
+            SetBusy(false);
         }
 
         private async Task DoOrganize()
@@ -166,7 +172,9 @@ namespace BVM.App.ViewModels
             if (dlg.ShowDialog() == true)
             {
                 SourceDirectory = dlg.FolderName;
+                DestinationDirectory = Path.Combine(dlg.FolderName, "dest");
                 OnPropertyChanged(nameof(SourceDirectory));
+                OnPropertyChanged(nameof(DestinationDirectory));
                 UpdateCommands();
             }
         }

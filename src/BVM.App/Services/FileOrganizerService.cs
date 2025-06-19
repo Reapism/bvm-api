@@ -6,6 +6,12 @@ namespace BVM.App.Services
 {
     public class FileOrganizerService
     {
+        public static string GetRelativePathFromDirectory(string sourceDir, string targetPath)
+        {
+            return Path.GetRelativePath(sourceDir, targetPath)
+                                   .TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+
         public async Task<List<FileMetadata>> ScanAsync(
             FileOrganizerRequest req,
             IProgress<int>? progress = null,
@@ -20,12 +26,14 @@ namespace BVM.App.Services
             foreach (var path in allFiles)
             {
                 ct.ThrowIfCancellationRequested();
-
                 var info = new FileInfo(path);
+                var relative = GetRelativePathFromDirectory(req.SourceDirectory, info.FullName);
+
                 files.Add(new FileMetadata
                 {
                     FileName = info.Name,
                     SourcePath = info.FullName,
+                    RelativePath = relative,
                     CreatedDate = info.CreationTimeUtc,
                     ModifiedDate = info.LastWriteTimeUtc
                 });

@@ -50,11 +50,11 @@
 
         <StackPanel Grid.Row="1">
             <Label Content="Preview" Style="{StaticResource LabelHeader }"/>
-            <DataGrid ItemsSource="{Binding Files}" AutoGenerateColumns="False">
+            <DataGrid ItemsSource="{Binding Files}" HorizontalScrollBarVisibility="Auto" AutoGenerateColumns="False" VerticalScrollBarVisibility="Auto">
                 <DataGrid.Columns>
                     <DataGridTextColumn Header="Name" Binding="{Binding FileName}"  />
-                    <DataGridTextColumn Header="Source" Binding="{Binding SourcePath}" />
-                    <DataGridTextColumn Header="Destination" Binding="{Binding DestinationPath}" />
+                    <DataGridTextColumn Header="Source" Binding="{Binding RelativePath}" />
+                    <DataGridTextColumn Header="Destination" Binding="{Binding DestinationRelativePath}" />
                     <DataGridTextColumn Header="Date" Binding="{Binding EffectiveDate}" 
                              HeaderStringFormat="g"/>
                     <DataGridCheckBoxColumn Header="Renamed" Binding="{Binding WasRenamed}" />
