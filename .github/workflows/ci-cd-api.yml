@@ -8,10 +8,10 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: bvm-prod-ccan-api
-  AZURE_WEBAPP_PACKAGE_PATH: Backend/publish
+  AZURE_WEBAPP_PACKAGE_PATH: BVM.WebApi/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
-  WORKING_DIRECTORY: Backend
+  WORKING_DIRECTORY: BVM.WebApi
 
 concurrency:
   group: CI-CD-${{ github.ref }}
@@ -19,12 +19,12 @@ concurrency:
 
 jobs:
   ci:
-    name: Build, Test & Publish
+    name: CI
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
 
-      - name: Cache NuGet packages
+      - name: Restore/Cache NuGet packages
         uses: actions/cache@v3
         with:
           path: ~/.nuget/packages
@@ -58,7 +58,7 @@ jobs:
           path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   cd:
-    name: Deploy to Azure
+    name: CD
     runs-on: ubuntu-latest
     needs: ci
     if: success()
