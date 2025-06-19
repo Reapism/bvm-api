@@ -16,6 +16,7 @@ public class WeatherForecastController : ApiControllerBase
         _logger = logger;
     }
 
+    [HttpGet]
     [Route("Get")]
     public IEnumerable<WeatherForecast> Get()
     {
