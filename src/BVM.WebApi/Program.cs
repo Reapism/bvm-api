@@ -1,14 +1,12 @@
+using BVM.WebApi;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Scalar.AspNetCore;
 using System.Security;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+DIRegistrations.RegisterServices(builder);
 
 var app = builder.Build();
 
@@ -56,7 +54,12 @@ app.UseExceptionHandler(errorApp =>
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint($"/swagger/{DIRegistrations.ApiVersion}/swagger.json", $"BVM API {DIRegistrations.ApiVersion}");
+        c.RoutePrefix = ""; // Serve this route at /
+    });
 }
 
 app.UseHttpsRedirection();
@@ -64,5 +67,7 @@ app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
+
+
 
 app.Run();
