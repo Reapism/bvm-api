@@ -8,10 +8,10 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: bvm-prod-ccan-api
-  AZURE_WEBAPP_PACKAGE_PATH: src/BVM.WebApi/publish
+  AZURE_WEBAPP_PACKAGE_PATH: publish           # publish folder under the project
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
-  WORKING_DIRECTORY: src/BVM.WebApi
+  WORKING_DIRECTORY: src/BVM.WebApi       # project folder relative to repo root
 
 concurrency:
   group: CI-CD-${{ github.ref }}
@@ -58,7 +58,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: webapp-package
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          path: ${{ env.WORKING_DIRECTORY }}/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
   cd:
     name: 'CD: Deploy to Azure'
@@ -66,18 +66,17 @@ jobs:
     needs: ci
     if: success()
     steps:
-      - name: List workflow-run artifacts for debugging
-        run: ls -R $GITHUB_WORKSPACE
+      - uses: actions/checkout@v3
 
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
           name: webapp-package
-          path: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          path: ${{ env.WORKING_DIRECTORY }}/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
 
-      - name: Azure WebApp Deploy
+      - name: Deploy to Azure WebApp
         uses: azure/webapps-deploy@v2
         with:
           app-name: ${{ env.AZURE_WEBAPP_NAME }}
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
-          package: ${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
+          package: ${{ env.WORKING_DIRECTORY }}/${{ env.AZURE_WEBAPP_PACKAGE_PATH }}
