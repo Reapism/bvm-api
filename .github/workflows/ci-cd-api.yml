@@ -1,3 +1,17 @@
+# Prerequisites:
+# 1. In Azure Portal, open your Web App and click "Get publish profile" to download the XML file.
+# 2. In your GitHub repository, go to Settings → Secrets → Actions, and create a secret:
+#    Name: AZURE_WEBAPP_PUBLISH_PROFILE
+#    Value: (Paste the entire XML content from the publish profile.)
+# 3. (Optional) To use Service Principal authentication via azure/login, create a secret:
+#    Name: AZURE_CREDENTIALS
+#    Value: (Run `az ad sp create-for-rbac --sdk-auth` and paste the JSON output.)
+#
+# Usage:
+# - Push to `main` or manually trigger via the Actions tab.
+# - The workflow will build, test, publish your Web API, and deploy to Azure automatically.
+
+
 name: CI/CD – API
 
 on:
