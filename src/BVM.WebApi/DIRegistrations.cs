@@ -232,8 +232,8 @@ namespace BVM.WebApi
                 o.SwaggerDoc(ApiVersion, new OpenApiInfo
                 {
                     Version = ApiVersion,
-                    Title = $"IDS API - {ApiVersion} {builder.Environment.EnvironmentName.ToUpper()}",
-                    Description = $"The backend API for servicing the **IDS 2.0** application. See below for a quick glance at the API details, health, useful links.\n\n" +
+                    Title = $"BVM API - {ApiVersion} {builder.Environment.EnvironmentName.ToUpper()}",
+                    Description = $"The backend API for servicing the **BVM** application. See below for a quick glance at the API details, health, useful links.\n\n" +
                       $"| **Description**                               | **Details**                                   |\n" +
                       $"|-----------------------------------------------|-----------------------------------------------|\n" +
                       $"| **Last Awoken**                               | {formattedAwokenDateTime}                     |\n" +

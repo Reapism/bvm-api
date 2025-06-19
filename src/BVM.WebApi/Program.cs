@@ -60,10 +60,10 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = ""; // Serve this route at /
     });
 }
-
 app.UseHttpsRedirection();
 
 app.UseRouting();
+app.UseHealthChecks("/health");
 
 app.UseAuthentication();
 app.UseAuthorization();
