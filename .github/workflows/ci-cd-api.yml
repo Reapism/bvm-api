@@ -8,7 +8,7 @@ on:
 
 env:
   AZURE_WEBAPP_NAME: bvm-prod-ccan-api
-  AZURE_WEBAPP_PACKAGE_PATH: BVM.WebApi/publish
+  AZURE_WEBAPP_PACKAGE_PATH: src/BVM.WebApi/publish
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 9.0.x
   WORKING_DIRECTORY: src/BVM.WebApi
@@ -66,6 +66,9 @@ jobs:
     needs: ci
     if: success()
     steps:
+      - name: List workflow-run artifacts for debugging
+        run: ls -R $GITHUB_WORKSPACE
+
       - name: Download build artifact
         uses: actions/download-artifact@v4
         with:
