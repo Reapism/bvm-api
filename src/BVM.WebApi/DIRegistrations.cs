@@ -6,8 +6,11 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging.Console;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace BVM.WebApi
 {
@@ -157,16 +160,32 @@ namespace BVM.WebApi
                 }
             });
 
-            builder.Services.AddAuthorization(options =>
+            builder.Services.AddAuthentication(options =>
             {
-                if (builder.Environment.IsProduction())
-                {
-                    options.FallbackPolicy = new AuthorizationPolicyBuilder()
-                        .RequireAuthenticatedUser()
-                        .Build();
-                }
-            });
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = true;
+                options.SaveToken = true;
 
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+
+                    ValidateIssuer = true,
+                    ValidIssuer = jwtSettings.Issuer,
+
+                    ValidateAudience = true,
+                    ValidAudience = jwtSettings.Audience,
+
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero   // optional: remove default 5m tolerance
+                };
+            });
+            builder.Services.AddAuthorization();
 
             builder.Services.AddIdentity<AppUser, AppRole>(options =>
             {
@@ -178,27 +197,6 @@ namespace BVM.WebApi
             })
             .AddEntityFrameworkStores<BvmDbContext>()
             .AddDefaultTokenProviders();
-
-            // Configure the application cookie settings.
-            builder.Services.ConfigureApplicationCookie(options =>
-            {
-                // Specify custom paths for login, logout, and access denied responses.
-                options.LoginPath = "/login";        // Redirect to this path when authentication is required.
-                options.LogoutPath = "/logout";        // Redirect here on logout.
-                options.AccessDeniedPath = "/access-denied"; // Redirect here when the user lacks permission.
-
-                // Set cookie expiration time and enable sliding expiration.
-                options.ExpireTimeSpan = TimeSpan.FromMinutes(60);
-                options.SlidingExpiration = true;
-
-                // Security settings for the cookie:
-                // HttpOnly prevents client-side script access to the cookie.
-                options.Cookie.HttpOnly = true;
-                // Always require HTTPS in production to ensure the cookie is secure.
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                // SameSite Lax helps mitigate CSRF attacks while ensuring usability.
-                options.Cookie.SameSite = SameSiteMode.Lax;
-            });
 
             builder.Services.AddControllers()
                 .AddJsonOptions(options =>

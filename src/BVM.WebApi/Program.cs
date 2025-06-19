@@ -1,7 +1,6 @@
 using BVM.WebApi;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using Scalar.AspNetCore;
 using System.Security;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -64,10 +63,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRouting();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-
-
 
 app.Run();

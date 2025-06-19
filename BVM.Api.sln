@@ -9,8 +9,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BVM.App", "src\BVM.App\BVM.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BVM.WebApi", "src\BVM.WebApi\BVM.WebApi.csproj", "{99758894-BBDA-80E9-B52C-FBD4922A24C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BVM.Infrastructure", "src\BVM.Infrastructure\BVM.Infrastructure.csproj", "{CAB34E7C-99B4-42E0-BC7F-734957FD22E7}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -29,10 +27,6 @@ Global
 		{99758894-BBDA-80E9-B52C-FBD4922A24C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99758894-BBDA-80E9-B52C-FBD4922A24C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{99758894-BBDA-80E9-B52C-FBD4922A24C9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CAB34E7C-99B4-42E0-BC7F-734957FD22E7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CAB34E7C-99B4-42E0-BC7F-734957FD22E7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CAB34E7C-99B4-42E0-BC7F-734957FD22E7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CAB34E7C-99B4-42E0-BC7F-734957FD22E7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
