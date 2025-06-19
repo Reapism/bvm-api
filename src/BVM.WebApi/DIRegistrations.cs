@@ -2,6 +2,7 @@
 using BVM.Core.Entities;
 using BVM.Core.Exceptions;
 using BVM.Core.Infrastructure.Data;
+using BVM.WebApi.Configurations;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -167,24 +168,34 @@ namespace BVM.WebApi
             })
             .AddJwtBearer(options =>
             {
+
+                var jwtSection = builder.Configuration.GetSection("Jwt");
+                builder.Services.Configure<JwtSettings>(jwtSection);
+
+                var jwt = jwtSection.Get<JwtSettings>();
+                var jwtKeyBytes = Encoding.UTF8.GetBytes(jwt.Key);
+
                 options.RequireHttpsMetadata = true;
                 options.SaveToken = true;
+
+                builder.Configuration.Bind("Jwt", options);
 
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
                     ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    IssuerSigningKey = new SymmetricSecurityKey(jwtKeyBytes),
 
                     ValidateIssuer = true,
-                    ValidIssuer = jwtSettings.Issuer,
+                    ValidIssuer = jwt.Issuer,
 
                     ValidateAudience = true,
-                    ValidAudience = jwtSettings.Audience,
+                    ValidAudience = jwt.Audience,
 
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero   // optional: remove default 5m tolerance
+                    ClockSkew = TimeSpan.Zero
                 };
             });
+
             builder.Services.AddAuthorization();
 
             builder.Services.AddIdentity<AppUser, AppRole>(options =>
