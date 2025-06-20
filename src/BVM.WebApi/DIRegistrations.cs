@@ -12,6 +12,7 @@ using Microsoft.Extensions.Logging.Console;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Threading.RateLimiting;
 
 namespace BVM.WebApi
 {
@@ -20,10 +21,10 @@ namespace BVM.WebApi
         public const string ApiVersion = "v1";
         public static void RegisterServices(WebApplicationBuilder builder)
         {
-            AddServices(builder);
+            AddDotNetServices(builder);
         }
 
-        private static void AddServices(WebApplicationBuilder builder)
+        private static void AddDotNetServices(WebApplicationBuilder builder)
         {
             var config = builder.Configuration
                .SetBasePath(builder.Environment.ContentRootPath)
@@ -214,6 +215,20 @@ namespace BVM.WebApi
                 {
                     options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
                 });
+
+            builder.Services.AddRateLimiter(options =>
+            {
+                options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+                    RateLimitPartition.GetFixedWindowLimiter(
+                        partitionKey: httpContext.User.Identity?.Name ?? httpContext.Request.Headers.Host.ToString(),
+                        factory: partition => new FixedWindowRateLimiterOptions
+                        {
+                            AutoReplenishment = true,
+                            PermitLimit = 10,
+                            QueueLimit = 0,
+                            Window = TimeSpan.FromMinutes(1)
+                        }));
+            });
 
             AddApiServices(builder);
             AddBlobServices(builder);
