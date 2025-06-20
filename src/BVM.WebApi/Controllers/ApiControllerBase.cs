@@ -6,7 +6,7 @@ namespace BVM.WebApi.Controllers;
 [ApiController]
 [AllowAnonymous]
 [Route("api/[controller]")]
-public abstract class ApiControllerBase
+public abstract class ApiControllerBase : ControllerBase
 {
 
 }

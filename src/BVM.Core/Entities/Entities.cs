@@ -1,6 +1,7 @@
 ﻿using BVM.Core.Abstractions.Data;
 using Microsoft.AspNetCore.Identity;
 using Sweaj.Patterns.Data.Entities;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BVM.Core.Entities
 {
@@ -22,6 +23,9 @@ namespace BVM.Core.Entities
 
     public class AppUserToken : IdentityUserToken<Guid>
     {
+        public DateTime Expires { get; set; }
+        public DateTime Created { get; set; } = DateTime.UtcNow;
+        public DateTime? Revoked { get; set; }
     }
 
     public class AppUserRole : IdentityUserRole<Guid>
@@ -31,6 +35,7 @@ namespace BVM.Core.Entities
     public class AppUserLogin : IdentityUserLogin<Guid>
     {
     }
+
 
     public class Profile : Entity
     {
