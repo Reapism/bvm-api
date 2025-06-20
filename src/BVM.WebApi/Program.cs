@@ -1,7 +1,6 @@
 using BVM.WebApi;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
 using System.Security;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -1,13 +1,11 @@
 ﻿using Azure.Storage.Blobs;
 using BVM.Core.Entities;
 using BVM.Core.Exceptions;
-using BVM.Core.Infrastructure.Data;
 using BVM.WebApi.Configurations;
+using BVM.WebApi.Infrastructure.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -154,11 +152,17 @@ namespace BVM.WebApi
             {
                 if (builder.Environment.IsDevelopment())
                 {
-                    o.UseSqlite(builder.Configuration.GetConnectionString("ApiSqlLiteDb"), o =>
+                    o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDb"), o =>
                     {
                         o.CommandTimeout(30);
                     });
-
+                }
+                else
+                {
+                    //o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDb"), o =>
+                    //{
+                    //    o.CommandTimeout(30);
+                    //});
                 }
             });
 
