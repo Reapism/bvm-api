@@ -12,7 +12,10 @@
         public async Task<int> CommitAsync(CancellationToken cancellationToken = default)
         {
             var db = scope.ServiceProvider.GetRequiredService<BvmDbContext>();
-            return await db.SaveChangesAsync(cancellationToken);
+            var result = await db.SaveChangesAsync(cancellationToken);
+
+            db.ChangeTracker.Clear();
+            return result;
         }
 
         public IRepository<TEntity> GetRepository<TEntity>() where TEntity : class

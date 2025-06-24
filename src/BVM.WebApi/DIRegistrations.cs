@@ -1,4 +1,5 @@
 ﻿using Azure.Storage.Blobs;
+using BVM.Core.Abstractions.Data;
 using BVM.Core.Entities;
 using BVM.Core.Exceptions;
 using BVM.WebApi.Configurations;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Sweaj.Patterns.Dates;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -156,6 +156,11 @@ namespace BVM.WebApi
 
             builder.Services.AddDbContext<BvmDbContext>(o =>
             {
+                if (builder.Environment.IsDevelopment())
+                {
+                    o.EnableDetailedErrors();
+                    o.EnableSensitiveDataLogging();
+                }
                 o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDb"), o =>
                 {
                     o.CommandTimeout(30);
@@ -298,7 +303,7 @@ namespace BVM.WebApi
         {
             var s = builder.Services;
 
-            s.AddSingleton<IDateTimeProvider, SystemTimeProvider>();
+            s.AddSingleton<IDateTimeProvider, EasternDateTimeProvider>();
             s.AddScoped<IAuthService, AuthService>();
             s.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             s.AddScoped<IUnitOfWork, UnitOfWork>();

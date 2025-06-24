@@ -25,4 +25,8 @@
     <ProjectReference Include="..\BVM.Core\BVM.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Infrastructure\Scripts\Cleanup\" />
+  </ItemGroup>
+
 </Project>
