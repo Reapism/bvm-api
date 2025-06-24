@@ -3,12 +3,15 @@ using BVM.Core.Entities;
 using BVM.Core.Exceptions;
 using BVM.WebApi.Configurations;
 using BVM.WebApi.Infrastructure.Data;
+using BVM.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Sweaj.Patterns.Dates;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -20,6 +23,9 @@ namespace BVM.WebApi
         public static void RegisterServices(WebApplicationBuilder builder)
         {
             AddDotNetServices(builder);
+            AddBlobServices(builder);
+            AddSwagger(builder);
+            AddApiServices(builder);
         }
 
         private static void AddDotNetServices(WebApplicationBuilder builder)
@@ -150,22 +156,15 @@ namespace BVM.WebApi
 
             builder.Services.AddDbContext<BvmDbContext>(o =>
             {
-                if (builder.Environment.IsDevelopment())
+                o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDb"), o =>
                 {
-                    o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDb"), o =>
-                    {
-                        o.CommandTimeout(30);
-                    });
-                }
-                else
-                {
-                    //o.UseSqlServer(builder.Configuration.GetConnectionString("ApiDb"), o =>
-                    //{
-                    //    o.CommandTimeout(30);
-                    //});
-                }
+                    o.CommandTimeout(30);
+                });
             });
+            builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 
+            builder.Services.AddSingleton(
+                sp => sp.GetRequiredService<IOptions<JwtSettings>>().Value);
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -173,12 +172,10 @@ namespace BVM.WebApi
             })
             .AddJwtBearer(options =>
             {
-
                 var jwtSection = builder.Configuration.GetSection("Jwt");
-                builder.Services.Configure<JwtSettings>(jwtSection);
 
                 var jwt = jwtSection.Get<JwtSettings>();
-                var jwtKeyBytes = Encoding.UTF8.GetBytes(jwt.Key);
+                var jwtKeyBytes = Encoding.UTF8.GetBytes(jwt.Secret);
 
                 options.RequireHttpsMetadata = true;
                 options.SaveToken = true;
@@ -233,10 +230,6 @@ namespace BVM.WebApi
                             Window = TimeSpan.FromMinutes(1)
                         }));
             });
-
-            AddApiServices(builder);
-            AddBlobServices(builder);
-            AddSwagger(builder);
         }
 
         private static void AddSwagger(WebApplicationBuilder builder)
@@ -305,6 +298,11 @@ namespace BVM.WebApi
         {
             var s = builder.Services;
 
+            s.AddSingleton<IDateTimeProvider, SystemTimeProvider>();
+            s.AddScoped<IAuthService, AuthService>();
+            s.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+            s.AddScoped<IUnitOfWork, UnitOfWork>();
+            //s.AddScoped(typeof(IRepository<>), typeof(<>));
         }
     }
 }

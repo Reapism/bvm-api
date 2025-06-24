@@ -16,89 +16,85 @@ namespace BVM.WebApi.Controllers
 {
     public class AuthController : ApiControllerBase
     {
-        private readonly AuthService authService;
-        private readonly UserManager<AppUser> userManager;
-        private readonly IConfiguration configuration;
-        private readonly BvmDbContext context;
-        private readonly JwtSettings jwtOptions;
+        private readonly IAuthService authService;
 
-        public AuthController(AuthService authService, UserManager<AppUser> userManager, IConfiguration configuration, BvmDbContext context, IOptions<JwtSettings> jwtOptions)
+        public AuthController(IAuthService authService)
         {
             this.authService = authService;
-            this.userManager = userManager;
-            this.configuration = configuration;
-            this.context = context;
-            this.jwtOptions = jwtOptions.Value;
+
         }
 
-        [HttpPost]
-        [AllowAnonymous]
-        [Route("login")]
-        [ProducesResponseType(typeof(AuthToken), StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        public async Task<IActionResult> Login([FromBody] LoginRequest req)
-        {
-            var user = await userManager.FindByEmailAsync(req.Email);
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[Route("forgot-password")]
+        //public async Task<IActionResult> ForgotPassword()
+        //{
 
-            if (user == null || !await userManager.CheckPasswordAsync(user, req.Password))
+        //}
+
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[Route("reset-password")]
+        //public async Task<IActionResult> ResetPassword()
+        //{
+
+        //}
+
+        //[HttpPost]
+        //[AllowAnonymous]
+        //[Route("verify-email")]
+        //public async Task<IActionResult> VerifyEmail()
+        //{
+
+        //}
+
+        [AllowAnonymous]
+        [HttpPost("register")]
+        public async Task<IActionResult> Register(
+            [FromBody] RegisterRequest req)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var token = await authService.RegisterAsync(req);
+            if (!token.IsSuccessful)
+                return Conflict("User already exists or invalid data.");
+
+            return Ok(new RegisterResponse(token));
+        }
+
+        [AllowAnonymous]
+        [HttpPost("login")]
+        public async Task<IActionResult> Login(
+            [FromBody] LoginRequest req)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var token = await authService.LoginAsync(req);
+            if (!token.IsSuccessful)
                 return Unauthorized();
 
-            // 2) build JWT access token (unchanged)
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var expires = DateTime.UtcNow.AddMinutes(
-                              configuration.GetValue<int>("Jwt:AccessTokenMinutes", 15));
-
-            var jwtToken = new JwtSecurityToken(
-                issuer: jwtOptions.Issuer,
-                audience: jwtOptions.Audience,
-                claims: new[] {
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName!),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-                },
-                notBefore: DateTime.UtcNow,
-                expires: expires,
-                signingCredentials: creds
-            );
-            var accessToken = new JwtSecurityTokenHandler().WriteToken(jwtToken);
-
-            // 3) create & persist a refresh token via IdentityUserToken
-            var refreshToken = new AppUserToken
-            {
-                UserId = user.Id,
-                LoginProvider = "BVM",
-                Name = Guid.NewGuid().ToString("N"),
-                Created = DateTime.UtcNow,
-                Expires = DateTime.UtcNow
-                                   .AddDays(configuration.GetValue<int>("Jwt:RefreshTokenDays", 7))
-            };
-            context.Set<AppUserToken>().Add(refreshToken);
-            await context.SaveChangesAsync();
-
-            // 4) return both tokens
-            return Ok(new AuthToken(true, accessToken, refreshToken.Name, (int)(expires - DateTime.UtcNow).TotalSeconds));
+            return Ok(new LoginResponse(token));
         }
 
-        [HttpPost]
-        
-        [Route("logout")]
-        public async Task<IActionResult> Logout()
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(
+            [FromBody] RefreshRequest req)
         {
-            throw new NotImplementedException();
-        }
-        [HttpPost]
-        [Route("refresh")]
-        public async Task<IActionResult> Refresh()
-        {
-            throw new NotImplementedException();
+            var token = await authService.RefreshAsync(req.RefreshToken);
+            if (!token.IsSuccessful)
+                return Unauthorized();
+
+            return Ok(new RefreshResponse(token));
         }
 
-        [HttpGet]
-        [Route("me")]
-        public async Task<IActionResult> Me()
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout(
+            [FromBody] LogoutRequest req)
         {
-            throw new NotImplementedException();
+            var success = await authService.LogoutAsync(req.RefreshToken);
+            return Ok(new LogoutResponse(success));
         }
     }
 }

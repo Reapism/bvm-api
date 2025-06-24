@@ -6,11 +6,11 @@ dotnet ef migrations add Init --project .\src\BVM.WebApi --output-dir Infrastruc
 
 # Update Migration
 `
-dotnet ef database update
+dotnet ef database update --project .\src\BVM.WebApi 
 `
 ## With Verbosity
 `
-Update-Database -Verbose
+dotnet ef database update --project .\src\BVM.WebApi --verbose
 `
 
 # Remove Migration
@@ -21,6 +21,11 @@ dotnet ef migrations remove
 # List Migration
 `
 dotnet ef migrations list
+`
+
+# Update dotnet-ef tools
+`
+dotnet tool install --global dotnet-ef
 `
 
 # [Resetting all migrations](https://learn.microsoft.com/en-us/ef/core/managing-schemas/migrations/managing?tabs=dotnet-core-cli)
