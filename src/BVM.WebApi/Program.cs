@@ -61,15 +61,21 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = ""; // Serve this route at /
     });
 }
-app.UseHttpsRedirection();
+
+if (app.Environment.IsProduction())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseRouting();
-app.UseHealthChecks("/health");
+
+app.UseCors("CorsPolicy");
 
 app.UseRateLimiter();
-
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseHealthChecks("/health");
 
 app.MapControllers();
 
