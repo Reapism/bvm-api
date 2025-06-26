@@ -117,21 +117,37 @@ namespace BVM.WebApi
 
             builder.Services.AddCors(options =>
             {
-                var apiOrig = builder.Configuration["Cors:ApiPolicy"];
-                var clientOrig = builder.Configuration["Cors:ClientPolicy"];
-                var allowedOrigins = new[]
+                var apiPolicyName = "Cors:ApiPolicy";
+                var apiOrigins = builder.Configuration
+                                          .GetSection(apiPolicyName)
+                                          .Get<string[]>();
+                if (apiOrigins is null || apiOrigins.Length == 0)
                 {
-                    apiOrig ?? throw new InvalidApplicationConfigurationException("Cors:ApiPolicy", builder.Environment.EnvironmentName),
-                    clientOrig ?? throw new InvalidApplicationConfigurationException("Cors:ClientPolicy", builder.Environment.EnvironmentName)
-                };
+                    throw new InvalidApplicationConfigurationException(
+                        apiPolicyName, builder.Environment.EnvironmentName);
+                }
+
+                var clientPolicyName = "Cors:ClientPolicy";
+                var clientOrigins = builder.Configuration
+                                          .GetSection(clientPolicyName)
+                                          .Get<string[]>();
+                if (clientOrigins is null || clientOrigins.Length == 0)
+                {
+                    throw new InvalidApplicationConfigurationException(
+                        clientPolicyName, builder.Environment.EnvironmentName);
+                }
+
+                var allowedOrigins = apiOrigins
+                    .Union(clientOrigins)
+                    .ToArray();
 
                 options.AddPolicy("CorsPolicy", policy =>
                 {
                     policy
-                      .WithOrigins(allowedOrigins)
-                      .AllowCredentials()
-                      .AllowAnyHeader()
-                      .AllowAnyMethod();
+                        .WithOrigins(allowedOrigins)
+                        .AllowCredentials()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
             });
 
