@@ -140,6 +140,9 @@ namespace BVM.WebApi
                 var allowedOrigins = apiOrigins
                     .Union(clientOrigins)
                     .ToArray();
+                // DEBUG: print to the App Service logs
+                Console.WriteLine($"[CORS] ApiOrigins: {string.Join(", ", apiOrigins ?? Array.Empty<string>())}");
+                Console.WriteLine($"[CORS] ClientOrigins: {string.Join(", ", clientOrigins ?? Array.Empty<string>())}");
 
                 options.AddPolicy("CorsPolicy", policy =>
                 {
