@@ -8,6 +8,7 @@ using BVM.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -116,31 +117,22 @@ namespace BVM.WebApi
 
             builder.Services.AddCors(options =>
             {
-                // In production, use only the origins specified in appsettings.json.
-                var apiPolicyName = "Cors:ApiPolicy";
-                var apiOrigins = builder.Configuration.GetSection(apiPolicyName).Get<string[]>();
-                if (apiOrigins is null || apiOrigins.Length == 0)
+                var apiOrig = builder.Configuration["Cors:ApiPolicy"];
+                var clientOrig = builder.Configuration["Cors:ClientPolicy"];
+                var allowedOrigins = new[]
                 {
-                    throw new InvalidApplicationConfigurationException(apiPolicyName, builder.Environment.EnvironmentName);
-                }
-
-                var clientPolicyName = "Cors:ClientPolicy";
-                var clientOrigins = builder.Configuration.GetSection(clientPolicyName).Get<string[]>();
-                if (clientOrigins is null || clientOrigins.Length == 0)
-                {
-                    throw new InvalidApplicationConfigurationException(clientPolicyName, builder.Environment.EnvironmentName);
-                }
-
-                var allowedOrigins = apiOrigins.Union(clientOrigins).ToArray();
+                    apiOrig ?? throw new InvalidApplicationConfigurationException("Cors:ApiPolicy", builder.Environment.EnvironmentName),
+                    clientOrig ?? throw new InvalidApplicationConfigurationException("Cors:ClientPolicy", builder.Environment.EnvironmentName)
+                };
 
                 options.AddPolicy("CorsPolicy", policy =>
                 {
-                    policy.WithOrigins(allowedOrigins)
-                          .AllowCredentials()
-                          .AllowAnyHeader()
-                          .AllowAnyMethod();
+                    policy
+                      .WithOrigins(allowedOrigins)
+                      .AllowCredentials()
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
                 });
-
             });
 
             builder.Services.AddDbContext<BvmDbContext>(o =>
