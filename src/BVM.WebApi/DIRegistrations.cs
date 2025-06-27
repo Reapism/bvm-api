@@ -8,7 +8,6 @@ using BVM.WebApi.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -36,6 +35,11 @@ namespace BVM.WebApi
                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                .AddUserSecrets<Program>();
+
+            if (builder.Environment.IsProduction())
+            {
+                builder.Configuration.AddEnvironmentVariables();
+            }
 
             builder.Services.AddHealthChecks();
             builder.Services.AddAntiforgery(options =>
