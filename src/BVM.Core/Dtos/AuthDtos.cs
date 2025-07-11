@@ -29,6 +29,12 @@ public record LogoutRequest(
 
 public record LogoutResponse(bool IsSuccessful);
 
+public class OAuthToken
+{
+    public string AccessToken { get; init; } = default!;
+    public string? RefreshToken { get; init; }
+    public DateTimeOffset ExpiresAt { get; init; }
+}
 public record AuthToken(bool IsSuccessful, string AccessToken, string RefreshToken, int ExpiresIn)
 {
     public static AuthToken Failed() => new(false, string.Empty, string.Empty, 0);
