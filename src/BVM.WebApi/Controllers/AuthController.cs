@@ -24,21 +24,6 @@ namespace BVM.WebApi.Controllers
 
         }
 
-        [AllowAnonymous]
-        [HttpPost("google")]
-        public async Task<IActionResult> LoginWithGoogle(
-            [FromQuery] string? callbackUrl)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var token = await authService.RegisterAsync(req);
-            if (!token.IsSuccessful)
-                return Conflict("User already exists or invalid data.");
-
-            return Ok(new RegisterResponse(token));
-        }
-
         //[HttpPost]
         //[AllowAnonymous]
         //[Route("forgot-password")]

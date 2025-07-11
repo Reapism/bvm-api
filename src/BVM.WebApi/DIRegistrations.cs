@@ -313,52 +313,5 @@ namespace BVM.WebApi
             s.AddScoped<IUnitOfWork, UnitOfWork>();
             //s.AddScoped(typeof(IRepository<>), typeof(<>));
         }
-
-        private static void AddExternalAuthenticationServices(WebApplicationBuilder builder)
-        {
-            builder.Services.Configure<GoogleOptions>(Configuration.GetSection("OAuth:Google"));
-            builder.Services.Configure<FacebookOptions>(Configuration.GetSection("OAuth:Facebook"));
-            builder.Services.Configure<InstagramOptions>(Configuration.GetSection("OAuth:Instagram"));
-            builder.Services.Configure<TikTokOptions>(Configuration.GetSection("OAuth:TikTok"));
-
-            // 2) Register each provider as a typed client
-            builder.Services
-                .AddHttpClient<GoogleAuthProvider>()
-                .ConfigureHttpClient((sp, client) =>
-                {
-                    var opts = sp.GetRequiredService<IOptions<GoogleOptions>>().Value;
-                    client.BaseAddress = new Uri(opts.TokenEndpoint); 
-                });
-
-            builder.Services
-                .AddHttpClient<FacebookAuthProvider>()
-                .ConfigureHttpClient((sp, client) => 
-                {
-                    var opts = sp.GetRequiredService<IOptions<FacebookOptions>>().Value;
-                    client.BaseAddress = new Uri(opts.TokenEndpoint);
-                });
-
-            builder.Services
-                .AddHttpClient<InstagramOptions>()
-                .ConfigureHttpClient((sp, client) => 
-                {
-                    var opts = sp.GetRequiredService<IOptions<InstagramOptions>>().Value;
-                    client.BaseAddress = new Uri(opts.TokenEndpoint);
-                });
-
-            builder.Services
-                .AddHttpClient<TikTokOptions>()
-                .ConfigureHttpClient((sp, client) => 
-                {
-                    var opts = sp.GetRequiredService<IOptions<TikTokOptions>>().Value;
-                    client.BaseAddress = new Uri(opts.TokenEndpoint);
-                });
-
-            // 3) Let DI know about all providers
-            builder.Services.AddScoped<IExternalAuthProvider, GoogleAuthProvider>();
-            builder.Services.AddScoped<IExternalAuthProvider, FacebookAuthProvider>();
-            builder.Services.AddScoped<IExternalAuthProvider, InstagramAuthProvider>();
-            builder.Services.AddScoped<IExternalAuthProvider, TikTokAuthProvider>();
-        }
     }
 }
